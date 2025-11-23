@@ -1,23 +1,164 @@
 #include <stdio.h>
+#include <stdlib.h>
+
 
 // Desafio Tetris Stack
 // Tema 3 - Integração de Fila e Pilha
 // Este código inicial serve como base para o desenvolvimento do sistema de controle de peças.
 // Use as instruções de cada nível para desenvolver o desafio.
 
-int main() {
 
-    // 🧩 Nível Novato: Fila de Peças Futuras
-    //
-    // - Crie uma struct Peca com os campos: tipo (char) e id (int).
-    // - Implemente uma fila circular com capacidade para 5 peças.
-    // - Crie funções como inicializarFila(), enqueue(), dequeue(), filaCheia(), filaVazia().
-    // - Cada peça deve ser gerada automaticamente com um tipo aleatório e id sequencial.
-    // - Exiba a fila após cada ação com uma função mostrarFila().
-    // - Use um menu com opções como:
-    //      1 - Jogar peça (remover da frente)
-    //      0 - Sair
-    // - A cada remoção, insira uma nova peça ao final da fila.
+// parametros globais com max de 5 peças 
+#define MAX 5
+// função para limpeza de buffer após uso
+void limparBufferEntrada(){
+    int c;
+    while((c = getchar()) != '\n' && c != EOF);
+
+};
+//estrutura das peças
+typedef struct{
+    char nome[30] ;
+    int id;
+}Pecas;
+
+// estrutura da fila 
+typedef struct{
+    Pecas itens[MAX];
+    int inicio;
+    int fim;
+    int total;
+}Fila;
+
+
+
+//função de iniciar a fila 
+void incializar(Fila *f){
+    f->inicio = 0;
+    f->fim = 0;
+    f->total = 0;
+}
+// função pra verificar se a fila esta cheia
+int filaCheia(Fila *f){
+    return f->total == MAX;
+}
+// função para ver se a fila esta vazia 
+int filaVazia(Fila *f){
+    return f->total == 0;
+}
+// função de inserir a peça, verificando se esta cheia a fila 
+void InserirPeca(Fila *f, Pecas p){
+    if(filaCheia(f)){
+        printf("Você não pode mais gerar peças, pois a fila está cheia!.\n");
+        return;
+    }
+
+    f->itens[f->fim] = p;
+    f->fim = (f->fim + 1) % MAX;
+    f->total++;
+}
+
+
+// função para jogar peça, verificando se a fila esta vazia
+void JogarPeca(Fila *f, Pecas *p){
+    if(filaVazia(f)){
+        printf("Você não pode jogar a peça, pois a lista está VAZIA!.\n");
+        return;
+    }
+    *p = f->itens[f->inicio];
+    f->inicio = (f->inicio + 1) % MAX;
+    f->total--;
+}
+
+//função para ver o status da fila e suas  peças 
+void MostraPeca(Fila *f){
+    if(filaVazia(f)){
+        printf("Nenhuma peça!\n");
+        return;
+    }
+    printf("Fila de peças: ");
+    for(int i = 0, idx = f->inicio; i < f->total; i++, idx = (idx + 1) % MAX){
+        printf("[%s %d],", f->itens[idx].nome, idx);
+    }
+}
+
+// função de gerar aleatoriamente as peças
+void GerarPeca(Pecas *p){
+    const char *nomes[] = {"I", "T", "L", "O"};
+    int tipo = rand() % 5;
+    snprintf(p->nome, sizeof(p->nome), "%s", nomes[tipo]);
+    
+}
+
+
+
+int main(){
+
+    Fila f;
+    incializar(&f);
+    Pecas removida;
+    Pecas nova;
+    int opcao;
+    srand(time(NULL));
+    
+    //criando a lista de inicio com ela cheia e peças criadas com seus nomes e ids
+    for(int i = 0; i < MAX; i++){
+        Pecas nova;
+        GerarPeca(&nova);
+        InserirPeca(&f, nova);
+    }
+    
+    MostraPeca(&f);
+
+// função princial e menu para usuário escolhe ro que deseja fazer 
+    do{
+
+        printf("\n---TETRIS---\n");
+        printf("1 - Jogar peça!\n");
+        printf("2 - Inserir nova peça!\n");
+        printf("0 - Sair do jogo.!\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+        limparBufferEntrada();
+
+        switch (opcao){
+        case 1:
+            printf("======================\n");
+            printf("---Jogando um peça.---\n");
+            printf("======================\n");
+            JogarPeca(&f, &removida);
+            printf("Peça %s removida \n", removida.nome);
+            MostraPeca(&f);
+            printf("\n------------------------\n");
+            printf("\nPressione [ENTER] para continuar...\n");
+            getchar();
+            break;
+        case 2:
+            printf("========================\n");
+            printf("---Inserindo uma peça---\n");
+            printf("=========================\n");
+            
+            GerarPeca(&nova);
+            InserirPeca(&f, nova );
+            MostraPeca(&f);
+            printf("\n-------------------------\n");
+            printf("\nPressione [ENTER] para continuar...\n");
+            getchar();
+
+            break;
+        case 0:
+            printf("Saindo do jogo...\n");
+            break;
+        default:
+            printf("==================================\n");
+            printf("Opção inválida, escolha novamente!\n");
+            printf("==================================\n");
+            break;
+        }
+
+
+
+    }while(opcao);
 
 
 
